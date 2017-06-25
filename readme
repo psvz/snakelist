@@ -1,0 +1,51 @@
+This is a partial skip list implementation. See
+https://en.wikipedia.org/wiki/Skip_list
+
+It is different from the classic implementation in that that
+the layers are doubly linked lists, and a scan operation can
+traverse left and right progressing downwards through the
+layers, thus, resembling a snake motion.
+
+Based on the assumption that operations with pointers are
+atomic, there is no contention between insert() and scan()
+operations - only insertions are globally contentious. It is
+application's responsibility to ensure that local operations
+on a member node are either atomic or protected, should the
+application require thread safety.
+
+Expected performance is O(nlogn) for space, O(logn) for scan
+(with no worse case guarantee which is hardly relevant in
+practice), and O(1) for next/previous/max/min.
+
+Limitation (partial implementation) is that no
+delete()/destroy() methods are available. This is on an
+assumption that the list can only grow or be static, always
+required by the application, and never shrinks. Such grave
+decision was made because freeing memory blocks would
+necessitate mutex on any read operation.
+
+To use the structure you need #include "snakelist.h" in your
+global header, and this global header - in snakelist.c. This
+chaining is due to DECLARE_SNAKELIST_N macro which you have
+to use in the global header to specify members of each node
+of type snakelist_n. Memory allocation and definition for
+every snakelist_n object is your responsibility. You will
+also need to define a standard function for node comparison.
+The rest is easy.
+
+You create an object of type snakelist_i that controls the
+instance of the structure: snakelist_i *mylist =
+snakelist_create() returns NULL on failure. Here, memory
+allocation is done for you.
+
+snakelist_scan(mylist, node, int (*compar())) returns
+pointer to the node in the list or NULL if "not found".
+
+snakelist_insert(mylist, node, int (*compar())) returns NULL
+on success (-ful insertion) or a pointer to the node if it
+is already in the list. Note, if you call scan(), check its
+NULL, then call insert(), you are subject to race condition.
+
+Finally, included test.h and test.c demonstrate how to use
+the code. The latter does a quick benchmarking against
+simple linked list scan. Enjoy!
