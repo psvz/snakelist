@@ -49,3 +49,9 @@ NULL, then call insert(), you are subject to race condition.
 Finally, included test.h and test.c demonstrate how to use
 the code. The latter does a quick benchmarking against
 simple linked list scan. Enjoy!
+
+NB Do not forget to change snakelist.h's variable
+SNAKELIST_LAYERS_NUMBER to indicate the maximal number of
+nodes you wish to cater for. This number is 2 powered to
+(number of layers + 1). Thus, second layer will be started
+when you add >= 4 nodes, etc.
